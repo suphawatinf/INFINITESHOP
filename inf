@@ -107,7 +107,8 @@ process_selection() {
     printf "\r\033[K          %s          \n" "$CATEGORY_NAME"
     printf "\r\033[K==========================================\n"
     for i in "${!APPS[@]}"; do
-        printf "\r\033[K  [%d] %s Clone #%d\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
+        # ตัดคำว่า Clone ออก แสดงแค่ชื่อหมวดหมู่และลำดับ
+        printf "\r\033[K  [%d] %s %d\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
     done
     printf "\r\033[K==========================================\n"
     printf "\r\033[K ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all\n"
@@ -138,7 +139,7 @@ process_selection() {
 
     for INDEX in "${SELECTED_INDICES[@]}"; do
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
-            install_apk "$CATEGORY_NAME Clone #$((INDEX+1))" "${APPS[$INDEX]}"
+            install_apk "$CATEGORY_NAME $filename $((INDEX+1))" "${APPS[$INDEX]}"
         else
             printf "\r\033[K[!] หมายเลข %d ไม่มีในรายการ\n" "$((INDEX+1))"
         fi
