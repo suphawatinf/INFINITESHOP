@@ -24,14 +24,15 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    printf "\r\033[K==========================================\n"
-    printf "\r\033[K        INFINITE SHOP - VERIFICATION      \n"
-    printf "\r\033[K==========================================\n"
+    echo -e "\033[1;36m┌────────────────────────────────────────┐\033[0m"
+    echo -e "\033[1;36m│       INFINITE SHOP - VERIFICATION     │\033[0m"
+    echo -e "\033[1;36m└────────────────────────────────────────┘\033[0m"
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-        read -s -p "กรุณาใส่รหัสผ่านเพื่อใช้งาน: " USER_PASS
-        printf "\n"
+        echo -ne "\033[1;33m[*] กรุณาใส่รหัสผ่านเพื่อใช้งาน: \033[0m"
+        read -s USER_PASS
+        echo ""
         
         local IS_CORRECT=0
         for PASS in "${VALID_PASSWORDS[@]}"; do
@@ -42,19 +43,19 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            printf "\r\033[K[✓] เข้าสู่ระบบสำเร็จ!\n\n"
+            echo -e "\033[1;32m[✓] เข้าสู่ระบบสำเร็จ!\033[0m\n"
             sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                printf "\r\033[K[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก %d ครั้ง)\n\n" "$REMAINING"
+                echo -e "\033[1;31m[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)\033[0m\n"
             fi
         fi
     done
 
-    printf "\r\033[K[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ\n"
+    echo -e "\033[1;31m[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ\033[0m"
     exit 1
 }
 
@@ -69,28 +70,26 @@ install_apk() {
     # ทำการเปลี่ยน Android ID และ IP แบบเงียบๆ ก่อนดาวน์โหลด
     change_identity
 
-    printf "\r\033[K[+] Downloading: %s...\n" "$NAME"
+    echo -e "\033[1;34m[↓] กำลังดาวน์โหลด: $NAME...\033[0m"
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        printf "\r\033[K[+] Installing: %s...\n" "$NAME"
+        echo -e "\033[1;33m[⚡] กำลังติดตั้ง: $NAME...\033[0m"
         
         # ติดตั้งด้วย Root
         su -c "pm install -r -g '$TEMP_FILE' > /dev/null 2>&1"
         local STATUS=$?
 
-        # รีเซ็ตเคอร์เซอร์กลับขอบซ้ายสุด
-        printf "\r\033[K"
-
         if [ $STATUS -eq 0 ]; then
-            printf "\r\033[K[✓] %s Installed Successfully!\n" "$NAME"
+            echo -e "\033[1;32m[✓] ติดตั้ง $NAME สำเร็จ!\033[0m"
         else
-            printf "\r\033[K[✗] Failed to install %s\n" "$NAME"
+            echo -e "\033[1;31m[✗] ติดตั้ง $NAME ไม่สำเร็จ\033[0m"
         fi
         rm -f "$TEMP_FILE"
     else
-        printf "\r\033[K[✗] Download failed for %s\n" "$NAME"
+        echo -e "\033[1;31m[✗] ดาวน์โหลดล้มเหลวสำหรับ $NAME\033[0m"
     fi
+    echo ""
 }
 
 # ==========================================
@@ -103,19 +102,21 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    printf "\r\033[K==========================================\n"
-    printf "\r\033[K          %s          \n" "$CATEGORY_NAME"
-    printf "\r\033[K==========================================\n"
+    echo -e "\033[1;35m┌────────────────────────────────────────┐\033[0m"
+    echo -e "\033[1;35m│           หมวดหมู่: $CATEGORY_NAME          │\033[0m"
+    echo -e "\033[1;35m└────────────────────────────────────────┘\033[0m"
+    
     for i in "${!APPS[@]}"; do
-        # ตัดคำว่า Clone ออกอย่างเด็ดขาด
-        printf "\r\033[K  [%d] %s %d\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
+        echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
     done
-    printf "\r\033[K==========================================\n"
-    printf "\r\033[K ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all\n"
-    printf "\r\033[K------------------------------------------\n"
+    
+    echo -e "\033[1;35m──────────────────────────────────────────\033[0m"
+    echo -e "\033[1;33m💡 รูปแบบการพิมพ์: 1-5 | 1 3 5 | all\033[0m"
+    echo -e "\033[1;35m──────────────────────────────────────────\033[0m"
 
-    read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
-    printf "\r\033[K"
+    echo -ne "\033[1;36m[?] เลือกรายการที่ต้องการติดตั้ง: \033[0m"
+    read INPUT_CHOICE
+    echo ""
 
     local SELECTED_INDICES=()
 
@@ -141,7 +142,7 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
             install_apk "$CATEGORY_NAME $((INDEX+1))" "${APPS[$INDEX]}"
         else
-            printf "\r\033[K[!] หมายเลข %d ไม่มีในรายการ\n" "$((INDEX+1))"
+            echo -e "\033[1;31m[!] หมายเลข $((INDEX+1)) ไม่มีในรายการ\033[0m"
         fi
     done
 }
@@ -171,14 +172,15 @@ check_password
 
 # 2. เมื่อผ่านรหัสแล้ว แสดงเมนูหลัก
 clear
-printf "\r\033[K==========================================\n"
-printf "\r\033[K          INFINITE SHOP INSTALLER         \n"
-printf "\r\033[K==========================================\n"
-printf "\r\033[K  [1] Delta Clones (%d Apps)\n" "${#DELTA_APPS[@]}"
-printf "\r\033[K  [2] ArceusX lite (%d Apps)\n" "${#ARCEUS_APPS[@]}"
-printf "\r\033[K==========================================\n"
-read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
-printf "\r\033[K"
+echo -e "\033[1;32m┌────────────────────────────────────────┐\033[0m"
+echo -e "\033[1;32m│        INFINITE SHOP INSTALLER         │\033[0m"
+echo -e "\033[1;32m└────────────────────────────────────────┘\033[0m"
+echo -e "  \033[1;36m[1]\033[0m Delta Clones (\033[1;33m${#DELTA_APPS[@]}\033[0m Apps)"
+echo -e "  \033[1;36m[2]\033[0m ArceusX lite (\033[1;33m${#ARCEUS_APPS[@]}\033[0m Apps)"
+echo -e "\033[1;32m──────────────────────────────────────────\033[0m"
+echo -ne "\033[1;33m[?] เลือกหมวดหมู่ที่ต้องการ (1-2): \033[0m"
+read MAIN_CHOICE
+echo ""
 
 case $MAIN_CHOICE in
     1)
@@ -188,10 +190,10 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
-        printf "\r\033[K[!] ตัวเลือกไม่ถูกต้อง\n"
+        echo -e "\033[1;31m[!] ตัวเลือกไม่ถูกต้อง\033[0m"
         ;;
 esac
 
-printf "\r\033[K==========================================\n"
-printf "\r\033[K โชคดีนะครับ !\n"
-printf "\r\033[K==========================================\n"
+echo -e "\033[1;32m──────────────────────────────────────────\033[0m"
+echo -e "\033[1;32m          ✨ ทำงานเสร็จสิ้น โชคดีครับ! ✨       \033[0m"
+echo -e "\033[1;32m──────────────────────────────────────────\033[0m"
