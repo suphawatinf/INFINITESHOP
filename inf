@@ -1,13 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# ==========================================
-# ค่า Android ID ที่ต้องการกำหนด
-# ==========================================
 CHANGE_ID="f77d5bd408f375b3"
 
-# ==========================================
-# ฟังก์ชันเปลี่ยน IP และเซ็ต Android ID แบบเงียบสนิท
-# ==========================================
 change_identity() {
     su -c "settings put secure android_id $CHANGE_ID" > /dev/null 2>&1
     su -c "cmd connectivity airplane-mode enable" > /dev/null 2>&1
@@ -16,9 +10,6 @@ change_identity() {
     sleep 3
 }
 
-# ==========================================
-# 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน
-# ==========================================
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
 MAX_ATTEMPTS=3
 
@@ -30,7 +21,7 @@ check_password() {
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-        echo -ne "\033[1;33m🔑 กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน: \033[0m"
+        echo -ne "\033[1;33m🔑 รหัสผ่าน: \033[0m"
         read -s USER_PASS
         echo ""
         
@@ -43,57 +34,49 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            echo -e "\033[1;32m🚀 เข้าสู่ระบบสำเร็จ! กำลังพาเข้าสู่ระบบ...\033[0m\n"
-            sleep 1.5
+            echo -e "\033[1;32m🚀 สำเร็จ!\033[0m\n"
+            sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                echo -e "\033[1;31m❌ รหัสผ่านไม่ถูกต้อง! (เหลือโอกาสอีก $REMAINING ครั้ง)\033[0m\n"
+                echo -e "\033[1;31m❌ ผิด! (เหลือ $REMAINING ครั้ง)\033[0m\n"
             fi
         fi
     done
 
-    echo -e "\033[1;31m🚫 คุณใส่รหัสผ่านผิดเกินกำหนด ล็อกระบบชั่วคราว\033[0m"
+    echo -e "\033[1;31m🚫 ล็อกระบบชั่วคราว\033[0m"
     exit 1
 }
 
-# ==========================================
-# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง
-# ==========================================
 install_apk() {
     local NAME=$1
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    # เปลี่ยน IP และ ID แบบเงียบๆ
     change_identity
 
-    echo -e "\033[1;34m[↓] กำลังดาวน์โหลด: $NAME...\033[0m"
+    echo -e "\033[1;34m[↓] โหลด: $NAME\033[0m"
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        echo -e "\033[1;33m[⚡] กำลังติดตั้ง: $NAME...\033[0m"
-        
+        echo -e "\033[1;33m[⚡] ติดตั้ง: $NAME\033[0m"
         su -c "pm install -r -g '$TEMP_FILE' > /dev/null 2>&1"
         local STATUS=$?
 
         if [ $STATUS -eq 0 ]; then
-            echo -e "\033[1;32m[✓] ติดตั้ง $NAME สำเร็จ!\033[0m"
+            echo -e "\033[1;32m[✓] $NAME สำเร็จ!\033[0m"
         else
-            echo -e "\033[1;31m[✗] ติดตั้ง $NAME ไม่สำเร็จ\033[0m"
+            echo -e "\033[1;31m[✗] $NAME ไม่สำเร็จ\033[0m"
         fi
         rm -f "$TEMP_FILE"
     else
-        echo -e "\033[1;31m[✗] ดาวน์โหลดล้มเหลวสำหรับ $NAME\033[0m"
+        echo -e "\033[1;31m[✗] โหลดล้มเหลว\033[0m"
     fi
     echo ""
 }
 
-# ==========================================
-# 2. ฟังก์ชันแสดงรายการและรับค่าตัวเลือก
-# ==========================================
 process_selection() {
     local CATEGORY_NAME=$1
     shift
@@ -110,10 +93,10 @@ process_selection() {
     done
     
     echo -e "\033[1;36m──────────────────────────────────────────\033[0m"
-    echo -e "\033[1;33m💡 รูปแบบการพิมพ์: 1-5 | 1 3 5 | all\033[0m"
+    echo -e "\033[1;33m💡 พิมพ์: 1-5 | 1 3 5 | all\033[0m"
     echo -e "\033[1;36m──────────────────────────────────────────\033[0m"
 
-    echo -ne "\033[1;36m🎯 เลือกรายการที่ต้องการติดตั้ง: \033[0m"
+    echo -ne "\033[1;36m🎯 เลือก: \033[0m"
     read INPUT_CHOICE
     echo ""
 
@@ -141,14 +124,11 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
             install_apk "$CATEGORY_NAME $((INDEX+1))" "${APPS[$INDEX]}"
         else
-            echo -e "\033[1;31m[!] หมายเลข $((INDEX+1)) ไม่มีในรายการ\033[0m"
+            echo -e "\033[1;31m[!] ไม่มีหมายเลข $((INDEX+1))\033[0m"
         fi
     done
 }
 
-# ==========================================
-# รายชื่อลิงก์ Direct Link
-# ==========================================
 DELTA_APPS=(
   "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/delta1.apk"
   "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/delta2.apk"
@@ -162,9 +142,6 @@ ARCEUS_APPS=(
   "https://github.com/boom2556255734-crypto/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.5_2.737.1584.apk"
 )
 
-# ==========================================
-# จุดเริ่มต้นการทำงาน (Main Execution)
-# ==========================================
 check_password
 
 clear
@@ -174,7 +151,7 @@ echo -e "\033[1;32m╚═══════════════════�
 echo -e "\033[1;36m[1]\033[0m Delta Clones (\033[1;33m${#DELTA_APPS[@]}\033[0m Apps)"
 echo -e "\033[1;36m[2]\033[0m ArceusX lite (\033[1;33m${#ARCEUS_APPS[@]}\033[0m Apps)"
 echo -e "\033[1;32m──────────────────────────────────────────\033[0m"
-echo -ne "\033[1;33m🎯 เลือกหมวดหมู่ที่ต้องการ (1-2): \033[0m"
+echo -ne "\033[1;33m🎯 เลือก (1-2): \033[0m"
 read MAIN_CHOICE
 echo ""
 
@@ -186,7 +163,7 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
-        echo -e "\033[1;31m[!] ตัวเลือกไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง\033[0m"
+        echo -e "\033[1;31m[!] ผิดพลาด\033[0m"
         ;;
 esac
 
