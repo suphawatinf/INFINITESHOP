@@ -57,24 +57,25 @@ install_apk() {
 
     change_identity
 
-    # ใช้ \n บังคับขึ้นบรรทัดใหม่ชิดซ้ายเสมอ ป้องกันข้อความเยื้อง
-    echo -e "\n\033[1;34m[↓] โหลด: $NAME\033[0m"
+    # แสดงผลเรียงบรรทัดลงมาตรงๆ ไม่ให้ข้อความซ้อนกัน
+    echo ""
+    echo -e "\033[1;34m[↓] กำลังดาวน์โหลด: $NAME\033[0m"
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        echo -e "\033[1;33m[⚡] ติดตั้ง: $NAME\033[0m"
+        echo -e "\033[1;33m[⚡] กำลังติดตั้งลงเครื่อง...\033[0m"
         su -c "pm install -r -g '$TEMP_FILE' > /dev/null 2>&1"
         local STATUS=$?
 
         if [ $STATUS -eq 0 ]; then
-            echo -e "\033[1;32m[✓] $NAME สำเร็จ!\033[0m"
+            echo -e "\033[1;32m[✓] ติดตั้ง $NAME สำเร็จเรียบร้อย\033[0m"
         else
-            echo -e "\033[1;31m[✗] $NAME ไม่สำเร็จ\033[0m"
+            echo -e "\033[1;31m[✗] ติดตั้ง $NAME ไม่สำเร็จ\033[0m"
         fi
         rm -f "$TEMP_FILE"
     else
-        echo -e "\033[1;31m[✗] โหลดล้มเหลว\033[0m"
-    }
+        echo -e "\033[1;31m[✗] ดาวน์โหลดไฟล์ไม่สำเร็จ\033[0m"
+    fi
     echo ""
 }
 
