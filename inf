@@ -108,6 +108,9 @@ process_selection() {
     
     for i in "${!APPS[@]}"; do
         echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
+    .done 2>/dev/null || true
+        # ใช้รูปแบบแสดงผลแบบมีสีสัน
+        echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
     done
     
     echo -e "\033[1;35m──────────────────────────────────────────\033[0m"
