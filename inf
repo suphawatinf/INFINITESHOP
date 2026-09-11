@@ -1,6 +1,14 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
+# ฟังก์ชันบังคับรีเซ็ตตำแหน่งตัวหนังสือ (Fix Staircase)
+# ==========================================
+reset_tty() {
+    # บังคับส่ง Carriage Return และเคลียร์โหมดเบี้ยวผ่าน ANSI Escape
+    printf "\033[20h\r" 2>/dev/null || true
+}
+
+# ==========================================
 # 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน
 # ==========================================
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -8,6 +16,7 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
+    reset_tty
     echo "=========================================="
     echo "        INFINITE SHOP - VERIFICATION      "
     echo "=========================================="
@@ -16,6 +25,7 @@ check_password() {
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
         read -s -p "กรุณาใส่รหัสผ่านเพื่อใช้งาน: " USER_PASS
         echo ""
+        reset_tty
         
         local IS_CORRECT=0
         for PASS in "${VALID_PASSWORDS[@]}"; do
@@ -26,14 +36,16 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            echo -e "[✓] เข้าสู่ระบบสำเร็จ!\n"
+            echo "[✓] เข้าสู่ระบบสำเร็จ!"
+            echo ""
             sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                echo -e "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)\n"
+                echo "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)"
+                echo ""
             fi
         fi
     done
@@ -43,7 +55,7 @@ check_password() {
 }
 
 # ==========================================
-# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง (แก้ตัวหนังสือเบี้ยวเด็ดขาด)
+# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง
 # ==========================================
 install_apk() {
     local NAME=$1
@@ -61,8 +73,8 @@ install_apk() {
         su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
         local STATUS=$?
 
-        # รีเซ็ต Terminal TTY ให้กลับมาขอบซ้ายปกติ
-        stty sane 2>/dev/null || true
+        # บังคับรีเซ็ตตัวหนังสือกลับชิดซ้าย
+        reset_tty
 
         if [ $STATUS -eq 0 ]; then
             echo "[✓] $NAME Installed Successfully!"
@@ -85,6 +97,7 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
+    reset_tty
     echo "=========================================="
     echo "          $CATEGORY_NAME          "
     echo "=========================================="
@@ -96,6 +109,7 @@ process_selection() {
     echo "------------------------------------------"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
+    reset_tty
 
     local SELECTED_INDICES=()
 
@@ -152,13 +166,15 @@ check_password
 
 # 2. แสดงเมนูหลักหลังจากรหัสผ่านถูกต้อง
 clear
+reset_tty
 echo "=========================================="
-echo "          INFINITE SHOP INSTALLER         "
+echo "             INFINITE SHOP         "
 echo "=========================================="
 echo "  [1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo "  [2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo "=========================================="
 read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
+reset_tty
 
 case $MAIN_CHOICE in
     1)
@@ -177,6 +193,4 @@ echo ""
 echo "=========================================="
 echo " โชคดีนะครับ !"
 echo "=========================================="
-
-# คืนค่า Terminal สุดท้ายให้ชิดซ้ายปกติ
-stty sane 2>/dev/null || true
+reset_tty
