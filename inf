@@ -57,7 +57,8 @@ install_apk() {
 
     change_identity
 
-    echo -e "\033[1;34m[↓] โหลด: $NAME\033[0m"
+    # ใช้ \n บังคับขึ้นบรรทัดใหม่ชิดซ้ายเสมอ ป้องกันข้อความเยื้อง
+    echo -e "\n\033[1;34m[↓] โหลด: $NAME\033[0m"
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
@@ -73,7 +74,7 @@ install_apk() {
         rm -f "$TEMP_FILE"
     else
         echo -e "\033[1;31m[✗] โหลดล้มเหลว\033[0m"
-    fi
+    }
     echo ""
 }
 
