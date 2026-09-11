@@ -43,7 +43,7 @@ check_password() {
 }
 
 # ==========================================
-# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง
+# 1. ฟังก์ชันดาวน์โหลดและติดตั้ง (แก้ตัวหนังสือเบี้ยวเด็ดขาด)
 # ==========================================
 install_apk() {
     local NAME=$1
@@ -57,10 +57,12 @@ install_apk() {
     if [ -f "$TEMP_FILE" ]; then
         echo "[+] Installing: $NAME..."
         
-        # ติดตั้งผ่าน Root และเคลียร์ Cursor ตัวหนังสือเบี้ยว
+        # สั่งงานผ่าน Root
         su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
         local STATUS=$?
-        printf "\r"
+
+        # รีเซ็ต Terminal TTY ให้กลับมาขอบซ้ายปกติ
+        stty sane 2>/dev/null || true
 
         if [ $STATUS -eq 0 ]; then
             echo "[✓] $NAME Installed Successfully!"
@@ -90,7 +92,7 @@ process_selection() {
         echo "  [$((i+1))] $CATEGORY_NAME Clone #$((i+1))"
     done
     echo "=========================================="
-    echo " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 |"
+    echo " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all"
     echo "------------------------------------------"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
@@ -173,5 +175,8 @@ esac
 
 echo ""
 echo "=========================================="
-echo " โชคดีนะครับ!"
+echo " โชคดีนะครับ !"
 echo "=========================================="
+
+# คืนค่า Terminal สุดท้ายให้ชิดซ้ายปกติ
+stty sane 2>/dev/null || true
