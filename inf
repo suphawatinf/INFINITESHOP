@@ -1,11 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
-# ฟังก์ชันบังคับรีเซ็ตตำแหน่งตัวหนังสือ (Fix Staircase)
+# ฟังก์ชันพิมพ์ข้อความบังคับชิดซ้าย (แก้ Staircase 100%)
 # ==========================================
-reset_tty() {
-    # บังคับส่ง Carriage Return และเคลียร์โหมดเบี้ยวผ่าน ANSI Escape
-    printf "\033[20h\r" 2>/dev/null || true
+print_line() {
+    printf "%s\r\n" "$*"
 }
 
 # ==========================================
@@ -16,16 +15,14 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    reset_tty
-    echo "=========================================="
-    echo "        INFINITE SHOP - VERIFICATION      "
-    echo "=========================================="
+    print_line "=========================================="
+    print_line "        INFINITE SHOP - VERIFICATION      "
+    print_line "=========================================="
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
         read -s -p "กรุณาใส่รหัสผ่านเพื่อใช้งาน: " USER_PASS
-        echo ""
-        reset_tty
+        print_line ""
         
         local IS_CORRECT=0
         for PASS in "${VALID_PASSWORDS[@]}"; do
@@ -36,21 +33,21 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            echo "[✓] เข้าสู่ระบบสำเร็จ!"
-            echo ""
+            print_line "[✓] เข้าสู่ระบบสำเร็จ!"
+            print_line ""
             sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                echo "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)"
-                echo ""
+                print_line "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)"
+                print_line ""
             fi
         fi
     done
 
-    echo "[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ"
+    print_line "[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ"
     exit 1
 }
 
@@ -62,28 +59,25 @@ install_apk() {
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    echo ""
-    echo "[+] Downloading: $NAME..."
+    print_line ""
+    print_line "[+] Downloading: $NAME..."
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        echo "[+] Installing: $NAME..."
+        print_line "[+] Installing: $NAME..."
         
         # สั่งงานผ่าน Root
         su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
         local STATUS=$?
 
-        # บังคับรีเซ็ตตัวหนังสือกลับชิดซ้าย
-        reset_tty
-
         if [ $STATUS -eq 0 ]; then
-            echo "[✓] $NAME Installed Successfully!"
+            print_line "[✓] $NAME Installed Successfully!"
         else
-            echo "[✗] Failed to install $NAME"
+            print_line "[✗] Failed to install $NAME"
         fi
         rm -f "$TEMP_FILE"
     else
-        echo "[✗] Download failed for $NAME"
+        print_line "[✗] Download failed for $NAME"
     fi
 }
 
@@ -97,19 +91,18 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    reset_tty
-    echo "=========================================="
-    echo "          $CATEGORY_NAME          "
-    echo "=========================================="
+    print_line "=========================================="
+    print_line "          $CATEGORY_NAME          "
+    print_line "=========================================="
     for i in "${!APPS[@]}"; do
-        echo "  [$((i+1))] $CATEGORY_NAME Clone #$((i+1))"
+        print_line "  [$((i+1))] $CATEGORY_NAME Clone #$((i+1))"
     done
-    echo "=========================================="
-    echo " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all"
-    echo "------------------------------------------"
+    print_line "=========================================="
+    print_line " ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all"
+    print_line "------------------------------------------"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
-    reset_tty
+    print_line ""
 
     local SELECTED_INDICES=()
 
@@ -135,8 +128,8 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
             install_apk "$CATEGORY_NAME Clone #$((INDEX+1))" "${APPS[$INDEX]}"
         else
-            echo ""
-            echo "[!] หมายเลข $((INDEX+1)) ไม่มีในรายการ"
+            print_line ""
+            print_line "[!] หมายเลข $((INDEX+1)) ไม่มีในรายการ"
         fi
     done
 }
@@ -166,15 +159,14 @@ check_password
 
 # 2. แสดงเมนูหลักหลังจากรหัสผ่านถูกต้อง
 clear
-reset_tty
-echo "=========================================="
-echo "             INFINITE SHOP         "
-echo "=========================================="
-echo "  [1] Delta Clones (${#DELTA_APPS[@]} Apps)"
-echo "  [2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
-echo "=========================================="
+print_line "=========================================="
+print_line "          INFINITE SHOP INSTALLER         "
+print_line "=========================================="
+print_line "  [1] Delta Clones (${#DELTA_APPS[@]} Apps)"
+print_line "  [2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
+print_line "=========================================="
 read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
-reset_tty
+print_line ""
 
 case $MAIN_CHOICE in
     1)
@@ -184,13 +176,12 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
-        echo ""
-        echo "[!] ตัวเลือกไม่ถูกต้อง"
+        print_line ""
+        print_line "[!] ตัวเลือกไม่ถูกต้อง"
         ;;
 esac
 
-echo ""
-echo "=========================================="
-echo " โชคดีนะครับ !"
-echo "=========================================="
-reset_tty
+print_line ""
+print_line "=========================================="
+print_line " โชคดีนะครับ !"
+print_line "=========================================="
