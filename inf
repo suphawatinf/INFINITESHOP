@@ -1,6 +1,22 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
+# ค่า Android ID ที่ต้องการกำหนด
+# ==========================================
+CHANGE_ID="f77d5bd408f375b3"
+
+# ==========================================
+# ฟังก์ชันเปลี่ยน IP และเซ็ต Android ID แบบเงียบๆ
+# ==========================================
+change_identity() {
+    su -c "settings put secure android_id $CHANGE_ID" > /dev/null 2>&1
+    su -c "cmd connectivity airplane-mode enable" > /dev/null 2>&1
+    sleep 2
+    su -c "cmd connectivity airplane-mode disable" > /dev/null 2>&1
+    sleep 3
+}
+
+# ==========================================
 # 0. ระบบตั้งค่าและตรวจสอบรหัสผ่าน
 # ==========================================
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -8,9 +24,9 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    printf "=========================================="
-    printf "\n        INFINITE SHOP - VERIFICATION      "
-    printf "\n==========================================\n"
+    printf "\r\033[K==========================================\n"
+    printf "\r\033[K        INFINITE SHOP - VERIFICATION      \n"
+    printf "\r\033[K==========================================\n"
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
@@ -26,19 +42,19 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            printf "[✓] เข้าสู่ระบบสำเร็จ!\n\n"
+            printf "\r\033[K[✓] เข้าสู่ระบบสำเร็จ!\n\n"
             sleep 1
             return 0
         else
             ATTEMPTS=$((ATTEMPTS + 1))
             REMAINING=$((MAX_ATTEMPTS - ATTEMPTS))
             if [ $REMAINING -gt 0 ]; then
-                printf "[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก $REMAINING ครั้ง)\n\n"
+                printf "\r\033[K[✗] รหัสผ่านไม่ถูกต้อง! (เหลืออีก %d ครั้ง)\n\n" "$REMAINING"
             fi
         fi
     done
 
-    printf "[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ\n"
+    printf "\r\033[K[!] คุณใส่รหัสผ่านผิดเกินกำหนด ปิดการทำงานระบบ\n"
     exit 1
 }
 
@@ -50,27 +66,30 @@ install_apk() {
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    printf "\n[+] Downloading: %s...\n" "$NAME"
+    # ทำการเปลี่ยน Android ID และ IP แบบเงียบๆ ก่อนดาวน์โหลด
+    change_identity
+
+    printf "\r\033[K[+] Downloading: %s...\n" "$NAME"
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
-        printf "[+] Installing: %s...\n" "$NAME"
+        printf "\r\033[K[+] Installing: %s...\n" "$NAME"
         
-        # ใช้ sh -c ใน su เพื่อไม่ให้ TTY ของ Termux เสียหาย
+        # ติดตั้งด้วย Root
         su -c "pm install -r -g '$TEMP_FILE' > /dev/null 2>&1"
         local STATUS=$?
 
-        # รีเซ็ตไดรเวอร์แสดงผลบรรทัดใหม่ตรงๆ
-        printf "\033[2K\r"
+        # รีเซ็ตเคอร์เซอร์กลับขอบซ้ายสุด
+        printf "\r\033[K"
 
         if [ $STATUS -eq 0 ]; then
-            printf "[✓] %s Installed Successfully!\n" "$NAME"
+            printf "\r\033[K[✓] %s Installed Successfully!\n" "$NAME"
         else
-            printf "[✗] Failed to install %s\n" "$NAME"
+            printf "\r\033[K[✗] Failed to install %s\n" "$NAME"
         fi
         rm -f "$TEMP_FILE"
     else
-        printf "[✗] Download failed for %s\n" "$NAME"
+        printf "\r\033[K[✗] Download failed for %s\n" "$NAME"
     fi
 }
 
@@ -84,17 +103,18 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    printf "=========================================="
-    printf "\n          %s          " "$CATEGORY_NAME"
-    printf "\n==========================================\n"
+    printf "\r\033[K==========================================\n"
+    printf "\r\033[K          %s          \n" "$CATEGORY_NAME"
+    printf "\r\033[K==========================================\n"
     for i in "${!APPS[@]}"; do
-        printf "  [%d] %s Clone #%d\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
+        printf "\r\033[K  [%d] %s Clone #%d\n" "$((i+1))" "$CATEGORY_NAME" "$((i+1))"
     done
-    printf "=========================================="
-    printf "\n ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all"
-    printf "\n------------------------------------------\n"
+    printf "\r\033[K==========================================\n"
+    printf "\r\033[K ตัวอย่างการพิมพ์: 1-5 | 1 3 5 | all\n"
+    printf "\r\033[K------------------------------------------\n"
 
     read -p "เลือกตัวโคลนที่ต้องการติดตั้ง: " INPUT_CHOICE
+    printf "\r\033[K"
 
     local SELECTED_INDICES=()
 
@@ -120,7 +140,7 @@ process_selection() {
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
             install_apk "$CATEGORY_NAME Clone #$((INDEX+1))" "${APPS[$INDEX]}"
         else
-            printf "\n[!] หมายเลข %d ไม่มีในรายการ\n" "$((INDEX+1))"
+            printf "\r\033[K[!] หมายเลข %d ไม่มีในรายการ\n" "$((INDEX+1))"
         fi
     done
 }
@@ -145,18 +165,19 @@ ARCEUS_APPS=(
 # จุดเริ่มต้นการทำงาน (Main Execution)
 # ==========================================
 
-# 1. ตรวจสอบรหัสผ่านก่อน
+# 1. ตรวจสอบรหัสผ่านก่อนเป็นอันดับแรก
 check_password
 
-# 2. แสดงเมนูหลักหลังจากรหัสผ่านถูกต้อง
+# 2. เมื่อผ่านรหัสแล้ว แสดงเมนูหลัก
 clear
-printf "=========================================="
-printf "\n          INFINITE SHOP INSTALLER         "
-printf "\n=========================================="
-printf "\n  [1] Delta Clones (%d Apps)" "${#DELTA_APPS[@]}"
-printf "\n  [2] ArceusX lite (%d Apps)" "${#ARCEUS_APPS[@]}"
-printf "\n==========================================\n"
+printf "\r\033[K==========================================\n"
+printf "\r\033[K          INFINITE SHOP INSTALLER         \n"
+printf "\r\033[K==========================================\n"
+printf "\r\033[K  [1] Delta Clones (%d Apps)\n" "${#DELTA_APPS[@]}"
+printf "\r\033[K  [2] ArceusX lite (%d Apps)\n" "${#ARCEUS_APPS[@]}"
+printf "\r\033[K==========================================\n"
 read -p "เลือกหมวดหมู่ที่ต้องการ (1-2): " MAIN_CHOICE
+printf "\r\033[K"
 
 case $MAIN_CHOICE in
     1)
@@ -166,10 +187,10 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
-        printf "\n[!] ตัวเลือกไม่ถูกต้อง\n"
+        printf "\r\033[K[!] ตัวเลือกไม่ถูกต้อง\n"
         ;;
 esac
 
-printf "\n=========================================="
-printf "\n โชคดีนะครับ !"
-printf "\n==========================================\n"
+printf "\r\033[K==========================================\n"
+printf "\r\033[K โชคดีนะครับ !\n"
+printf "\r\033[K==========================================\n"
