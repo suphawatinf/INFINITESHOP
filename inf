@@ -67,7 +67,6 @@ install_apk() {
     local URL=$2
     local TEMP_FILE="/sdcard/Download/temp_app.apk"
 
-    # ทำการเปลี่ยน Android ID และ IP แบบเงียบๆ ก่อนดาวน์โหลด
     change_identity
 
     echo -e "\033[1;34m[↓] กำลังดาวน์โหลด: $NAME...\033[0m"
@@ -76,7 +75,6 @@ install_apk() {
     if [ -f "$TEMP_FILE" ]; then
         echo -e "\033[1;33m[⚡] กำลังติดตั้ง: $NAME...\033[0m"
         
-        # ติดตั้งด้วย Root
         su -c "pm install -r -g '$TEMP_FILE' > /dev/null 2>&1"
         local STATUS=$?
 
@@ -106,7 +104,7 @@ process_selection() {
     echo -e "\033[1;35m│           หมวดหมู่: $CATEGORY_NAME          │\033[0m"
     echo -e "\033[1;35m└────────────────────────────────────────┘\033[0m"
     
-    # แสดงรายการแบบไม่ซ้ำ
+    # แสดงรายการรอบเดียวจบ ไม่ให้ซ้ำ
     for i in "${!APPS[@]}"; do
         echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
     done
@@ -167,11 +165,8 @@ ARCEUS_APPS=(
 # ==========================================
 # จุดเริ่มต้นการทำงาน (Main Execution)
 # ==========================================
-
-# 1. ตรวจสอบรหัสผ่านก่อนเป็นอันดับแรก
 check_password
 
-# 2. เมื่อผ่านรหัสแล้ว แสดงเมนูหลัก
 clear
 echo -e "\033[1;32m┌────────────────────────────────────────┐\033[0m"
 echo -e "\033[1;32m│        INFINITE SHOP INSTALLER         │\033[0m"
