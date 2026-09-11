@@ -106,10 +106,8 @@ process_selection() {
     echo -e "\033[1;35m│           หมวดหมู่: $CATEGORY_NAME          │\033[0m"
     echo -e "\033[1;35m└────────────────────────────────────────┘\033[0m"
     
+    # แสดงรายการแบบไม่ซ้ำ
     for i in "${!APPS[@]}"; do
-        echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
-    .done 2>/dev/null || true
-        # ใช้รูปแบบแสดงผลแบบมีสีสัน
         echo -e "  \033[1;32m[$((i+1))]\033[0m $CATEGORY_NAME $((i+1))"
     done
     
