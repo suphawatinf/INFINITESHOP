@@ -7,14 +7,13 @@ CR="\r\033[K"
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-CHANGE_ID="f77d5bd408f375b3"
-
-change_identity() {
-    su -c "settings put secure android_id $CHANGE_ID" > /dev/null 2>&1
-    su -c "cmd connectivity airplane-mode enable" > /dev/null 2>&1
-    sleep 2
-    su -c "cmd connectivity airplane-mode disable" > /dev/null 2>&1
-    sleep 3
+# --- ฟังก์ชันตั้งค่าหน้าจอ (ปรับ DPI เป็น 750 อัตโนมัติ) ---
+set_automatic_dpi() {
+    echo -e "${CR}⚙️ กำลังปรับค่า DPI หน้าจอเป็น 750 อัตโนมัติ..."
+    su -c "wm density 750" > /dev/null 2>&1
+    sleep 1
+    echo -e "${CR}✨ ตั้งค่า DPI สำเร็จเรียบร้อย!"
+    sleep 1
 }
 
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -23,7 +22,7 @@ MAX_ATTEMPTS=3
 check_password() {
     clear
     echo -e "╔════════════════════════════════════════╗"
-    echo -e "║       INFINITE SHOP - VERIFICATION     ║"
+    echo -e "║        INFINITE SHOP - VERIFICATION    ║"
     echo -e "╚════════════════════════════════════════╝"
     
     local ATTEMPTS=0
@@ -57,8 +56,6 @@ install_apk() {
     local NAME=$1
     local URL=$2
     local TEMP_FILE="/data/data/com.termux/files/home/temp_app.apk"
-
-    change_identity
 
     echo -e "${CR}------------------------------------------"
     echo -e "${CR}📥 กำลังดาวน์โหลด: $NAME"
@@ -99,7 +96,7 @@ process_selection() {
 
     clear
     echo -e "╔════════════════════════════════════════╗"
-    echo -e "║         📂 หมวดหมู่: $CATEGORY_NAME          ║"
+    echo -e "║          📂 หมวดหมู่: $CATEGORY_NAME          ║"
     echo -e "╚════════════════════════════════════════╝"
     
     for i in "${!APPS[@]}"; do
@@ -136,7 +133,7 @@ process_selection() {
 
     clear
     echo -e "╔════════════════════════════════════════╗"
-    echo -e "║         🚀 กำลังดำเนินการติดตั้ง          ║"
+    echo -e "║          🚀 กำลังดำเนินการติดตั้ง          ║"
     echo -e "╚════════════════════════════════════════╝"
 
     for INDEX in "${SELECTED_INDICES[@]}"; do
@@ -162,7 +159,9 @@ ARCEUS_APPS=(
   "https://github.com/suphawatinf/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.8_2.737.1584.apk"
 )
 
-check_password
+# --- ลำดับการทำงาน ---
+check_password      # 1. ตรวจสอบรหัสผ่านก่อน
+set_automatic_dpi   # 2. ปรับ DPI เป็น 750 อัตโนมัติ
 
 clear
 echo -e "╔════════════════════════════════════════╗"
@@ -192,5 +191,5 @@ esac
 
 echo -e "${CR}"
 echo -e "${CR}------------------------------------------"
-echo -e "${CR}          ✨ ทำงานเสร็จสิ้นเรียบร้อย! ✨       "
+echo -e "${CR}         ✨ ทำงานเสร็จสิ้นเรียบร้อย! ✨        "
 echo -e "${CR}------------------------------------------"
