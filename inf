@@ -67,13 +67,15 @@ install_apk() {
         local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
         if [ "$FILE_SIZE" -gt 1024 ]; then
             echo -e "${CR}⚡ กำลังติดตั้ง: $NAME ..."
-            su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
+            
+            # ถอด Redirect ออก เพื่อให้เห็นข้อความ Error จริงๆ ถ้าติดตั้งไม่สำเร็จ
+            su -c "pm install -r -g '$TEMP_FILE'"
             local STATUS=$?
 
             if [ $STATUS -eq 0 ]; then
                 echo -e "${CR}✅ ติดตั้งสำเร็จ: $NAME"
             else
-                echo -e "${CR}❌ ติดตั้งไม่สำเร็จ"
+                echo -e "${CR}❌ ติดตั้งไม่สำเร็จ (รหัสข้อผิดพลาด: $STATUS)"
             fi
         else
             echo -e "${CR}❌ ไฟล์เสีย (ขนาดไฟล์เล็กเกินไป)"
