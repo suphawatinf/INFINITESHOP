@@ -11,7 +11,7 @@ MAX_ATTEMPTS=3
 check_password() {
     clear
     echo -e "╔════════════════════════════════════════╗"
-    echo -e "║         INFINITE SHOP INSTALLER        ║"
+    echo -e "║            INFINITE SHOP               ║"
     echo -e "╚════════════════════════════════════════╝"
     
     local ATTEMPTS=0
@@ -20,7 +20,7 @@ check_password() {
         read -s USER_PASS
         echo ""
         
-        # ตัดช่องว่างหัว-ท้าย และอักขระพิเศษที่พิมพ์เกินออกทันที
+        # ตัดช่องว่างหัว-ท้าย และอักขระพิเศษออก ป้องกันรหัสผิดพลาด
         USER_PASS=$(echo "$USER_PASS" | tr -d '[:space:]' | tr -d '\r')
         
         local IS_CORRECT=0
@@ -159,7 +159,8 @@ echo -e "╚══════════════════════�
 echo -e "${CR}👑 Developer : $OWNER_NAME"
 echo -e "${CR}💬 Discord   : $DISCORD_LINK"
 echo -e "${CR}------------------------------------------"
-echo -e "${CR}[1] Delta        (${#DELTA_APPS[@]} Apps)"
+# แก้ไขชื่อแสดงผลตรงนี้ให้เป็นชื่อที่คุณต้องการครับ
+echo -e "${CR}[1] Delta (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
