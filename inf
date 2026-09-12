@@ -52,7 +52,7 @@ check_password() {
 install_apk() {
     local NAME=$1
     local URL=$2
-    local TEMP_FILE="/sdcard/Download/temp_app.apk"
+    local TEMP_FILE="/data/data/com.termux/files/home/temp_app.apk"
 
     change_identity
 
@@ -80,7 +80,7 @@ install_apk() {
         fi
         rm -f "$TEMP_FILE"
     else
-        echo -e "${CR}❌ ดาวน์โหลดล้มเหลว (เช็คลิงก์ Releases ใน GitHub)"
+        echo -e "${CR}❌ ดาวน์โหลดล้มเหลว"
     fi
     echo -e "${CR}------------------------------------------"
 }
