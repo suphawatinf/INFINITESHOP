@@ -15,6 +15,7 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
+    echo -e "\033[0m"
     echo "╔════════════════════════════════════════╗"
     echo "║       INFINITE SHOP - VERIFICATION     ║"
     echo "╚════════════════════════════════════════╝"
@@ -53,36 +54,34 @@ install_apk() {
 
     change_identity
 
-    printf "\n------------------------------------------\n"
-    printf "📥 กำลังดาวน์โหลด: %s\n" "$NAME"
+    echo -e "\033[0m"
+    echo "------------------------------------------"
+    echo "📥 กำลังดาวน์โหลด: $NAME"
     
-    # ลบไฟล์เก่าก่อนโหลด
     rm -f "$TEMP_FILE"
-    
-    # ดาวน์โหลดพร้อมแสดงสถานะและรองรับ Redirect ของ GitHub
-    curl -# -L "$URL" -o "$TEMP_FILE"
+    # ใช้ -sL แบบไร้เสียง เพื่อป้องกันแถบดาวน์โหลดพ่นข้อความรบกวนเคอร์เซอร์
+    curl -sL "$URL" -o "$TEMP_FILE"
 
-    # ตรวจสอบว่ามีไฟล์จริง และขนาดไฟล์ต้องมากกว่า 1MB (ป้องกันโหลดไฟล์ HTML ผิดพลาด)
     if [ -f "$TEMP_FILE" ]; then
         local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
         if [ "$FILE_SIZE" -gt 1024 ]; then
-            printf "⚡ กำลังติดตั้ง: %s ...\n" "$NAME"
+            echo "⚡ กำลังติดตั้ง: $NAME ..."
             su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
             local STATUS=$?
 
             if [ $STATUS -eq 0 ]; then
-                printf "✅ ติดตั้งสำเร็จ: %s\n" "$NAME"
+                echo "✅ ติดตั้งสำเร็จ: $NAME"
             else
-                printf "❌ ติดตั้งไม่สำเร็จ (ติดปัญหาแพ็กเกจระบบ)\n"
+                echo "❌ ติดตั้งไม่สำเร็จ"
             fi
         else
-            printf "❌ ดาวน์โหลดล้มเหลว: ไฟล์เสียหายหรือลิงก์ไม่ถูกต้อง\n"
+            echo "❌ ไฟล์เสียหายหรือลิงก์ไม่ถูกต้อง"
         fi
         rm -f "$TEMP_FILE"
     else
-        printf "❌ ไม่พบไฟล์ที่ดาวน์โหลด\n"
+        echo "❌ ดาวน์โหลดล้มเหลว"
     fi
-    printf "------------------------------------------\n"
+    echo "------------------------------------------"
 }
 
 process_selection() {
@@ -92,6 +91,7 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
+    echo -e "\033[0m"
     echo "╔════════════════════════════════════════╗"
     echo "║         📂 หมวดหมู่: $CATEGORY_NAME          ║"
     echo "╚════════════════════════════════════════╝"
@@ -129,6 +129,7 @@ process_selection() {
     fi
 
     clear
+    echo -e "\033[0m"
     echo "╔════════════════════════════════════════╗"
     echo "║         🚀 กำลังดำเนินการติดตั้ง          ║"
     echo "╚════════════════════════════════════════╝"
@@ -156,6 +157,7 @@ ARCEUS_APPS=(
 check_password
 
 clear
+echo -e "\033[0m"
 echo "╔════════════════════════════════════════╗"
 echo "║         INFINITE SHOP INSTALLER        ║"
 echo "╚════════════════════════════════════════╝"
