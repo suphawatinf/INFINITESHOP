@@ -6,21 +6,12 @@ CR="\r\033[K"
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-# --- ฟังก์ชันปรับ DPI และคืนโฟกัสให้คีย์บอร์ด ---
-set_dpi_after_auth() {
-    echo -e "${CR}⚙️ รหัสผ่านถูกต้อง! กำลังปรับความละเอียดหน้าจอ..."
-    
-    # 1. ปรับ DPI
-    su -c "wm density 160" > /dev/null 2>&1
-    sleep 0.5
-    
-    # 2. บังคับซ่อนและเปิดคีย์บอร์ดใหม่เพื่อคืนโฟกัสการพิมพ์ (Soft Keyboard Refresh)
-    su -c "input keyevent 111" > /dev/null 2>&1 # ESC เพื่อเคลียร์โฟกัสเก่า
-    sleep 0.2
-    
-    echo -e "${CR}✨ ปรับขนาดหน้าจอสำเร็จ!"
-    sleep 1
-}
+# ตรวจสอบว่าเคยปรับ DPI ในรอบนี้หรือยัง (ป้องกันลูปซ้ำ)
+if [ "$1" == "--dpi-set" ]; then
+    SKIP_DPI=1
+else
+    SKIP_DPI=0
+fi
 
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
 MAX_ATTEMPTS=3
@@ -56,6 +47,17 @@ check_password() {
     done
     echo -e "${CR}🚫 ล็อกระบบชั่วคราว"
     exit 1
+}
+
+# --- ปรับ DPI และรีสตาร์ตเข้าสคริปต์ใหม่เพื่อคืนโฟกัสคีย์บอร์ด 100% ---
+apply_dpi_and_reload() {
+    if [ $SKIP_DPI -eq 0 ]; then
+        echo -e "${CR}⚙️ กำลังปรับขนาดหน้าจอและรีเฟรชระบบ..."
+        su -c "wm density 160" > /dev/null 2>&1
+        sleep 1
+        # รันสคริปต์เดิมซ้ำพร้อมพารามิเตอร์เพื่อข้ามขั้นตอนรหัสผ่าน/DPI
+        exec bash "$0" --dpi-set
+    fi
 }
 
 install_apk() {
@@ -166,8 +168,10 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password          # 1. ให้ใส่รหัสผ่านก่อน
-set_dpi_after_auth      # 2. ปรับ DPI หลังรหัสผ่านผ่าน + รีเฟรชแป้นพิมพ์
+if [ $SKIP_DPI -eq 0 ]; then
+    check_password           # 1. ให้ใส่รหัสผ่านก่อน
+    apply_dpi_and_reload     # 2. ปรับ DPI แล้วรีโหลดกระบวนการเพื่อดึงแป้นพิมพ์กลับมา
+fi
 
 clear
 echo -e "╔════════════════════════════════════════╗"
