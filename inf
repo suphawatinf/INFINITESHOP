@@ -159,7 +159,7 @@ echo -e "╚══════════════════════�
 echo -e "${CR}👑 Developer : $OWNER_NAME"
 echo -e "${CR}💬 Discord   : $DISCORD_LINK"
 echo -e "${CR}------------------------------------------"
-echo -e "${CR}[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
+echo -e "${CR}[1] Delta        (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
