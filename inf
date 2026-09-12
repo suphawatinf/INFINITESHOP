@@ -52,20 +52,35 @@ check_password() {
 install_apk() {
     local NAME=$1
     local URL=$2
+    local TEMP_FILE="/data/data/com.termux/files/home/temp_app.apk"
 
     change_identity
 
     echo -e "${CR}------------------------------------------"
-    echo -e "${CR}📥 กำลังดาวน์โหลดและติดตั้ง: $NAME"
+    echo -e "${CR}📥 กำลังดาวน์โหลด: $NAME"
     
-    # สตรีมข้อมูลจาก GitHub เข้าคำสั่งติดตั้งโดยตรง ไม่ต้องสร้างไฟล์ชั่วคราว ป้องกันปัญหา Permission Denied
-    su -c "curl -sL '$URL' | pm install -r -g -" > /dev/null 2>&1
-    local STATUS=$?
+    rm -f "$TEMP_FILE"
+    curl -sL "$URL" -o "$TEMP_FILE"
+    local CURL_STATUS=$?
 
-    if [ $STATUS -eq 0 ]; then
-        echo -e "${CR}✅ ติดตั้งสำเร็จ: $NAME"
+    if [ $CURL_STATUS -eq 0 ] && [ -f "$TEMP_FILE" ]; then
+        local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
+        if [ "$FILE_SIZE" -gt 1024 ]; then
+            echo -e "${CR}⚡ กำลังติดตั้ง: $NAME ..."
+            su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
+            local STATUS=$?
+
+            if [ $STATUS -eq 0 ]; then
+                echo -e "${CR}✅ ติดตั้งสำเร็จ: $NAME"
+            else
+                echo -e "${CR}❌ ติดตั้งไม่สำเร็จ"
+            fi
+        else
+            echo -e "${CR}❌ ไฟล์เสีย (ขนาดไฟล์เล็กเกินไป)"
+        fi
+        rm -f "$TEMP_FILE"
     else
-        echo -e "${CR}❌ ติดตั้งไม่สำเร็จ"
+        echo -e "${CR}❌ ดาวน์โหลดล้มเหลว"
     fi
     echo -e "${CR}------------------------------------------"
 }
@@ -83,7 +98,6 @@ process_selection() {
     
     for i in "${!APPS[@]}"; do
         echo -e "${CR}[$((i+1))] $CATEGORY_NAME $((i+1))"
-    .done 2>/dev/null || true
     done
     
     echo -e "${CR}------------------------------------------"
