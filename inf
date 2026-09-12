@@ -7,7 +7,7 @@ CR="\r\033[K"
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
+VALID_PASSWORDS=("PREM1688" "prem99")
 MAX_ATTEMPTS=3
 
 check_password() {
