@@ -7,24 +7,17 @@ CR="\r\033[K"
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-# --- ฟังก์ชันปรับ Smallest width เป็น 750 dp ---
-set_smallest_width_750() {
-    echo -e "${CR}⚙️ กำลังปรับ Smallest width เป็น 750 dp..."
+# --- ฟังก์ชันปรับ DPI ปลอดภัย ไม่ทำให้คีย์บอร์ดค้าง ---
+set_safe_dpi() {
+    echo -e "${CR}⚙️ กำลังปรับแต่งความละเอียดหน้าจอ..."
     
-    # ดึงความกว้างพิกเซลของหน้าจอ (Width)
-    local DISPLAY_WIDTH=$(su -c "wm size" 2>&1 | grep -oE '[0-9]+x[0-9]+' | head -n 1 | cut -d'x' -f1)
+    # 1. สั่งปรับ DPI
+    su -c "wm density 160" > /dev/null 2>&1
     
-    if [ -n "$DISPLAY_WIDTH" ]; then
-        # คำนวณค่า DPI ที่ทำให้ Smallest width เท่ากับ 750 dp (DPI = Width * 160 / 750)
-        local TARGET_DPI=$(( DISPLAY_WIDTH * 160 / 750 ))
-        
-        # สั่งปรับค่า density
-        su -c "wm density $TARGET_DPI" > /dev/null 2>&1
-        echo -e "${CR}✨ ปรับ Smallest width เป็น 750 dp สำเร็จ! (DPI: $TARGET_DPI)"
-    else
-        echo -e "${CR}⚠️ ไม่สามารถดึงความละเอียดหน้าจอได้"
-    fi
-    sleep 1.5
+    # 2. ส่งสัญญาณ Clear Focus ให้แป้นพิมพ์รีเฟรชตัวเองทันที
+    su -c "input keyevent 111" > /dev/null 2>&1 # Escape
+    
+    sleep 0.5
 }
 
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -145,7 +138,7 @@ process_selection() {
     clear
     echo -e "╔════════════════════════════════════════╗"
     echo -e "║          🚀 กำลังดำเนินการติดตั้ง          ║"
-    echo -e "╚════════════════════════════════════════╝"
+    echo -e "╚════════════════════════════════════╝"
 
     for INDEX in "${SELECTED_INDICES[@]}"; do
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
@@ -171,8 +164,8 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password             # 1. ตรวจสอบรหัสผ่าน
-set_smallest_width_750     # 2. ปรับ Smallest width เป็น 750 dp ทันที
+check_password      # 1. ตรวจสอบรหัสผ่าน
+set_safe_dpi        # 2. ปรับหน้าจอ + รีเฟรชโฟกัสคีย์บอร์ด
 
 clear
 echo -e "╔════════════════════════════════════════╗"
@@ -184,6 +177,8 @@ echo -e "${CR}------------------------------------------"
 echo -e "${CR}[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
+
+# เคลียร์ Input Buffer ก่อนรับค่าหมวดหมู่
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
 echo ""
