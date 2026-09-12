@@ -21,7 +21,7 @@ check_password() {
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-        echo -n "🔑 รหัสผ่าน: "
+        printf "🔑 รหัสผ่าน: "
         read -s USER_PASS
         echo ""
         
@@ -53,26 +53,36 @@ install_apk() {
 
     change_identity
 
-    echo ""
-    echo "------------------------------------------"
-    echo "📥 กำลังดาวน์โหลด: $NAME"
-    curl -sL "$URL" -o "$TEMP_FILE" > /dev/null 2>&1
+    printf "\n------------------------------------------\n"
+    printf "📥 กำลังดาวน์โหลด: %s\n" "$NAME"
+    
+    # ลบไฟล์เก่าก่อนโหลด
+    rm -f "$TEMP_FILE"
+    
+    # ดาวน์โหลดพร้อมแสดงสถานะและรองรับ Redirect ของ GitHub
+    curl -# -L "$URL" -o "$TEMP_FILE"
 
+    # ตรวจสอบว่ามีไฟล์จริง และขนาดไฟล์ต้องมากกว่า 1MB (ป้องกันโหลดไฟล์ HTML ผิดพลาด)
     if [ -f "$TEMP_FILE" ]; then
-        echo "⚡ กำลังติดตั้ง: $NAME"
-        su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
-        local STATUS=$?
+        local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
+        if [ "$FILE_SIZE" -gt 1024 ]; then
+            printf "⚡ กำลังติดตั้ง: %s ...\n" "$NAME"
+            su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
+            local STATUS=$?
 
-        if [ $STATUS -eq 0 ]; then
-            echo "✅ ติดตั้งสำเร็จ: $NAME"
+            if [ $STATUS -eq 0 ]; then
+                printf "✅ ติดตั้งสำเร็จ: %s\n" "$NAME"
+            else
+                printf "❌ ติดตั้งไม่สำเร็จ (ติดปัญหาแพ็กเกจระบบ)\n"
+            fi
         else
-            echo "❌ ติดตั้งไม่สำเร็จ: $NAME"
+            printf "❌ ดาวน์โหลดล้มเหลว: ไฟล์เสียหายหรือลิงก์ไม่ถูกต้อง\n"
         fi
-        rm -f "$TEMP_FILE" > /dev/null 2>&1
+        rm -f "$TEMP_FILE"
     else
-        echo "❌ ดาวน์โหลดไฟล์ไม่สำเร็จ"
+        printf "❌ ไม่พบไฟล์ที่ดาวน์โหลด\n"
     fi
-    echo "------------------------------------------"
+    printf "------------------------------------------\n"
 }
 
 process_selection() {
@@ -94,7 +104,7 @@ process_selection() {
     echo "💡 พิมพ์: 1-5 หรือ 1 3 5 หรือ all"
     echo "------------------------------------------"
 
-    echo -n "🎯 เลือกรายการ: "
+    printf "🎯 เลือกรายการ: "
     read INPUT_CHOICE
     echo ""
 
@@ -152,7 +162,7 @@ echo "╚═══════════════════════�
 echo "[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo "[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo "------------------------------------------"
-echo -n "🎯 เลือกหมวดหมู่ (1-2): "
+printf "🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
 echo ""
 
