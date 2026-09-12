@@ -3,6 +3,10 @@
 # ANSI Escape Code สำหรับล้างแถวและบังคับชิดซ้ายสุด
 CR="\r\033[K"
 
+# ข้อมูลผู้พัฒนาและลิงก์ Discord ที่คุณให้มา
+OWNER_NAME="Suphawat"
+DISCORD_LINK="https://discord.gg/VCPAaUy46C"
+
 CHANGE_ID="f77d5bd408f375b3"
 
 change_identity() {
@@ -68,7 +72,6 @@ install_apk() {
         if [ "$FILE_SIZE" -gt 1024 ]; then
             echo -e "${CR}⚡ กำลังติดตั้ง: $NAME ..."
             
-            # ซ่อนข้อความดิบของระบบ แต่ยังดึงผลลัพธ์มาเช็คความสำเร็จ
             local INSTALL_OUTPUT
             INSTALL_OUTPUT=$(su -c "pm install -r -g '$TEMP_FILE'" 2>&1)
             local STATUS=$?
@@ -165,6 +168,9 @@ clear
 echo -e "╔════════════════════════════════════════╗"
 echo -e "║         INFINITE SHOP INSTALLER        ║"
 echo -e "╚════════════════════════════════════════╝"
+echo -e "${CR}👑 Developer : $OWNER_NAME"
+echo -e "${CR}💬 Discord   : $DISCORD_LINK"
+echo -e "${CR}------------------------------------------"
 echo -e "${CR}[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
