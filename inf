@@ -1,5 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+# ฟังก์ชันบังคับเคอร์เซอร์กลับชิดซ้ายและเคลียร์สถานะจอ
+reset_cursor() {
+    printf "\r\033[0m"
+}
+
 CHANGE_ID="f77d5bd408f375b3"
 
 change_identity() {
@@ -15,13 +20,14 @@ MAX_ATTEMPTS=3
 
 check_password() {
     clear
-    echo -e "\033[0m"
+    reset_cursor
     echo "╔════════════════════════════════════════╗"
     echo "║       INFINITE SHOP - VERIFICATION     ║"
     echo "╚════════════════════════════════════════╝"
     
     local ATTEMPTS=0
     while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+        reset_cursor
         printf "🔑 รหัสผ่าน: "
         read -s USER_PASS
         echo ""
@@ -35,14 +41,17 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
+            reset_cursor
             echo "🚀 สำเร็จ!"
             sleep 1
             return 0
         else
+            reset_cursor
             echo "❌ รหัสผ่านไม่ถูกต้อง"
             ATTEMPTS=$((ATTEMPTS + 1))
         fi
     done
+    reset_cursor
     echo "🚫 ล็อกระบบชั่วคราว"
     exit 1
 }
@@ -54,33 +63,38 @@ install_apk() {
 
     change_identity
 
-    echo -e "\033[0m"
+    reset_cursor
     echo "------------------------------------------"
+    reset_cursor
     echo "📥 กำลังดาวน์โหลด: $NAME"
     
     rm -f "$TEMP_FILE"
-    # ใช้ -sL แบบไร้เสียง เพื่อป้องกันแถบดาวน์โหลดพ่นข้อความรบกวนเคอร์เซอร์
     curl -sL "$URL" -o "$TEMP_FILE"
 
     if [ -f "$TEMP_FILE" ]; then
         local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
         if [ "$FILE_SIZE" -gt 1024 ]; then
+            reset_cursor
             echo "⚡ กำลังติดตั้ง: $NAME ..."
             su -c "pm install -r -g '$TEMP_FILE'" > /dev/null 2>&1
             local STATUS=$?
 
+            reset_cursor
             if [ $STATUS -eq 0 ]; then
                 echo "✅ ติดตั้งสำเร็จ: $NAME"
             else
                 echo "❌ ติดตั้งไม่สำเร็จ"
             fi
         else
+            reset_cursor
             echo "❌ ไฟล์เสียหายหรือลิงก์ไม่ถูกต้อง"
         fi
         rm -f "$TEMP_FILE"
     else
+        reset_cursor
         echo "❌ ดาวน์โหลดล้มเหลว"
     fi
+    reset_cursor
     echo "------------------------------------------"
 }
 
@@ -91,19 +105,24 @@ process_selection() {
     local TOTAL=${#APPS[@]}
 
     clear
-    echo -e "\033[0m"
+    reset_cursor
     echo "╔════════════════════════════════════════╗"
     echo "║         📂 หมวดหมู่: $CATEGORY_NAME          ║"
     echo "╚════════════════════════════════════════╝"
     
     for i in "${!APPS[@]}"; do
+        reset_cursor
         echo "[$((i+1))] $CATEGORY_NAME $((i+1))"
     done
     
+    reset_cursor
     echo "------------------------------------------"
+    reset_cursor
     echo "💡 พิมพ์: 1-5 หรือ 1 3 5 หรือ all"
+    reset_cursor
     echo "------------------------------------------"
 
+    reset_cursor
     printf "🎯 เลือกรายการ: "
     read INPUT_CHOICE
     echo ""
@@ -129,7 +148,7 @@ process_selection() {
     fi
 
     clear
-    echo -e "\033[0m"
+    reset_cursor
     echo "╔════════════════════════════════════════╗"
     echo "║         🚀 กำลังดำเนินการติดตั้ง          ║"
     echo "╚════════════════════════════════════════╝"
@@ -157,13 +176,17 @@ ARCEUS_APPS=(
 check_password
 
 clear
-echo -e "\033[0m"
+reset_cursor
 echo "╔════════════════════════════════════════╗"
 echo "║         INFINITE SHOP INSTALLER        ║"
 echo "╚════════════════════════════════════════╝"
+reset_cursor
 echo "[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
+reset_cursor
 echo "[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
+reset_cursor
 echo "------------------------------------------"
+reset_cursor
 printf "🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
 echo ""
@@ -176,11 +199,16 @@ case $MAIN_CHOICE in
         process_selection "ArceusX lite" "${ARCEUS_APPS[@]}"
         ;;
     *)
+        reset_cursor
         echo "[!] เลือกเมนูไม่ถูกต้อง"
         ;;
 esac
 
+reset_cursor
 echo ""
+reset_cursor
 echo "------------------------------------------"
+reset_cursor
 echo "          ✨ ทำงานเสร็จสิ้นเรียบร้อย! ✨       "
+reset_cursor
 echo "------------------------------------------"
