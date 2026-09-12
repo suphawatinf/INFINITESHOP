@@ -157,9 +157,9 @@ echo -e "╚══════════════════════�
 echo -e "${CR}👑 Developer : $OWNER_NAME"
 echo -e "${CR}💬 Discord   : $DISCORD_LINK"
 echo -e "${CR}------------------------------------------"
-# ใช้ printf จัดช่องว่างให้คำว่า Apps ตรงกันเป๊ะ
-printf "${CR}[1] %-15s (%2d Apps)\n" "Delta" "${#DELTA_APPS[@]}"
-printf "${CR}[2] %-15s (%2d Apps)\n" "ArceusX lite" "${#ARCEUS_APPS[@]}"
+# ล็อคตำแหน่งช่องว่างด้วยข้อความตรงๆ เพื่อความเป๊ะ
+echo -e "${CR}[1] Delta        (${#DELTA_APPS[@]} Apps)"
+echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
