@@ -3,26 +3,26 @@
 # ANSI Escape Code สำหรับล้างแถวและบังคับชิดซ้ายสุด
 CR="\r\033[K"
 
-# ข้อมูลผู้พัฒนาและลิงก์ Discord ที่คุณให้มา
+# ข้อมูลผู้พัฒนาและลิงก์ Discord
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-# --- ฟังก์ชันตั้งค่าหน้าจอ (ปรับ DPI เป็น 750 อัตโนมัติทันที) ---
-set_automatic_dpi() {
-    echo -e "${CR}⚙️ กำลังปรับค่า DPI หน้าจอเป็น 750..."
+# --- ฟังก์ชันปรับ Smallest width เป็น 750 dp ---
+set_smallest_width_750() {
+    echo -e "${CR}⚙️ กำลังปรับ Smallest width เป็น 750 dp..."
     
-    # สั่งปรับ DPI บังคับระบุหน้าจอหลัก (-d 0) และส่งสัญญาณรีเฟรชระบบ
-    su -c "wm density 750 -d 0" > /dev/null 2>&1
-    su -c "wm density 750" > /dev/null 2>&1
+    # ดึงความกว้างพิกเซลของหน้าจอ (Width)
+    local DISPLAY_WIDTH=$(su -c "wm size" 2>&1 | grep -oE '[0-9]+x[0-9]+' | head -n 1 | cut -d'x' -f1)
     
-    # ดึงค่า DPI ปัจจุบันมาตรวจสอบ
-    local CURRENT_DPI
-    CURRENT_DPI=$(su -c "wm density" 2>&1 | grep -oE '[0-9]+' | tail -n 1)
-
-    if [ -n "$CURRENT_DPI" ]; then
-        echo -e "${CR}✨ ตั้งค่า DPI สำเร็จ! (ค่าปัจจุบัน: ${CURRENT_DPI})"
+    if [ -n "$DISPLAY_WIDTH" ]; then
+        # คำนวณค่า DPI ที่ทำให้ Smallest width เท่ากับ 750 dp (DPI = Width * 160 / 750)
+        local TARGET_DPI=$(( DISPLAY_WIDTH * 160 / 750 ))
+        
+        # สั่งปรับค่า density
+        su -c "wm density $TARGET_DPI" > /dev/null 2>&1
+        echo -e "${CR}✨ ปรับ Smallest width เป็น 750 dp สำเร็จ! (DPI: $TARGET_DPI)"
     else
-        echo -e "${CR}✨ ส่งคำสั่งปรับ DPI เรียบร้อยแล้ว"
+        echo -e "${CR}⚠️ ไม่สามารถดึงความละเอียดหน้าจอได้"
     fi
     sleep 1.5
 }
@@ -171,8 +171,8 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password      # 1. ตรวจสอบรหัสผ่าน
-set_automatic_dpi   # 2. ปรับ DPI เป็น 750 ทันทีที่รหัสผ่านถูกต้อง
+check_password             # 1. ตรวจสอบรหัสผ่าน
+set_smallest_width_750     # 2. ปรับ Smallest width เป็น 750 dp ทันที
 
 clear
 echo -e "╔════════════════════════════════════════╗"
