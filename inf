@@ -1,23 +1,25 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# ANSI Escape Code สำหรับล้างแถวและบังคับชิดซ้ายสุด
+# ANSI Escape Code สำหรับล้างแถว
 CR="\r\033[K"
 
-# ข้อมูลผู้พัฒนาและลิงก์ Discord
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-# --- ฟังก์ชันปรับ DPI ปลอดภัย ไม่ทำให้คีย์บอร์ดค้าง ---
-set_safe_dpi() {
-    echo -e "${CR}⚙️ กำลังปรับแต่งความละเอียดหน้าจอ..."
+# --- ฟังก์ชันปรับ DPI และคืนโฟกัสให้คีย์บอร์ด ---
+set_dpi_after_auth() {
+    echo -e "${CR}⚙️ รหัสผ่านถูกต้อง! กำลังปรับความละเอียดหน้าจอ..."
     
-    # 1. สั่งปรับ DPI
+    # 1. ปรับ DPI
     su -c "wm density 160" > /dev/null 2>&1
-    
-    # 2. ส่งสัญญาณ Clear Focus ให้แป้นพิมพ์รีเฟรชตัวเองทันที
-    su -c "input keyevent 111" > /dev/null 2>&1 # Escape
-    
     sleep 0.5
+    
+    # 2. บังคับซ่อนและเปิดคีย์บอร์ดใหม่เพื่อคืนโฟกัสการพิมพ์ (Soft Keyboard Refresh)
+    su -c "input keyevent 111" > /dev/null 2>&1 # ESC เพื่อเคลียร์โฟกัสเก่า
+    sleep 0.2
+    
+    echo -e "${CR}✨ ปรับขนาดหน้าจอสำเร็จ!"
+    sleep 1
 }
 
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -138,7 +140,7 @@ process_selection() {
     clear
     echo -e "╔════════════════════════════════════════╗"
     echo -e "║          🚀 กำลังดำเนินการติดตั้ง          ║"
-    echo -e "╚════════════════════════════════════╝"
+    echo -e "╚════════════════════════════════════════╝"
 
     for INDEX in "${SELECTED_INDICES[@]}"; do
         if [ $INDEX -ge 0 ] && [ $INDEX -lt $TOTAL ]; then
@@ -164,8 +166,8 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password      # 1. ตรวจสอบรหัสผ่าน
-set_safe_dpi        # 2. ปรับหน้าจอ + รีเฟรชโฟกัสคีย์บอร์ด
+check_password          # 1. ให้ใส่รหัสผ่านก่อน
+set_dpi_after_auth      # 2. ปรับ DPI หลังรหัสผ่านผ่าน + รีเฟรชแป้นพิมพ์
 
 clear
 echo -e "╔════════════════════════════════════════╗"
@@ -178,7 +180,6 @@ echo -e "${CR}[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
 
-# เคลียร์ Input Buffer ก่อนรับค่าหมวดหมู่
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
 echo ""
