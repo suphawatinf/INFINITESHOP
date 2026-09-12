@@ -60,9 +60,10 @@ install_apk() {
     echo -e "${CR}📥 กำลังดาวน์โหลด: $NAME"
     
     rm -f "$TEMP_FILE"
-    curl -sL "$URL" -o "$TEMP_FILE"
+    wget --no-check-certificate -q "$URL" -O "$TEMP_FILE"
+    local WGET_STATUS=$?
 
-    if [ -f "$TEMP_FILE" ]; then
+    if [ $WGET_STATUS -eq 0 ] && [ -f "$TEMP_FILE" ]; then
         local FILE_SIZE=$(du -k "$TEMP_FILE" | cut -f1)
         if [ "$FILE_SIZE" -gt 1024 ]; then
             echo -e "${CR}⚡ กำลังติดตั้ง: $NAME ..."
@@ -75,11 +76,11 @@ install_apk() {
                 echo -e "${CR}❌ ติดตั้งไม่สำเร็จ"
             fi
         else
-            echo -e "${CR}❌ ไฟล์เสียหายหรือลิงก์ไม่ถูกต้อง"
+            echo -e "${CR}❌ ไฟล์เสีย (ขนาดไฟล์เล็กเกินไป)"
         fi
         rm -f "$TEMP_FILE"
     else
-        echo -e "${CR}❌ ดาวน์โหลดล้มเหลว"
+        echo -e "${CR}❌ ดาวน์โหลดล้มเหลว (เช็คลิงก์ Releases ใน GitHub)"
     fi
     echo -e "${CR}------------------------------------------"
 }
