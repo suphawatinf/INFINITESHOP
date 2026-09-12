@@ -1,9 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# ANSI Escape Code สำหรับล้างแถวและบังคับชิดซ้ายสุด
 CR="\r\033[K"
 
-# ข้อมูลผู้พัฒนาและลิงก์ Discord
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
@@ -13,7 +11,7 @@ MAX_ATTEMPTS=3
 check_password() {
     clear
     echo -e "╔════════════════════════════════════════╗"
-    echo -e "║        INFINITE SHOP  INSTALLER        ║"
+    echo -e "║         INFINITE SHOP INSTALLER        ║"
     echo -e "╚════════════════════════════════════════╝"
     
     local ATTEMPTS=0
@@ -21,6 +19,9 @@ check_password() {
         echo -ne "${CR}🔑 รหัสผ่าน: "
         read -s USER_PASS
         echo ""
+        
+        # ตัดช่องว่างหัว-ท้าย และอักขระพิเศษที่พิมพ์เกินออกทันที
+        USER_PASS=$(echo "$USER_PASS" | tr -d '[:space:]' | tr -d '\r')
         
         local IS_CORRECT=0
         for PASS in "${VALID_PASSWORDS[@]}"; do
@@ -31,8 +32,6 @@ check_password() {
         done
         
         if [ $IS_CORRECT -eq 1 ]; then
-            echo -e "${CR}🚀 สำเร็จ!"
-            sleep 1
             return 0
         else
             echo -e "${CR}❌ รหัสผ่านไม่ถูกต้อง"
@@ -151,11 +150,11 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password             # ตรวจสอบรหัสผ่าน
+check_password
 
 clear
 echo -e "╔════════════════════════════════════════╗"
-echo -e "║             INFINITE SHOP              ║"
+echo -e "║              INFINITE SHOP             ║"
 echo -e "╚════════════════════════════════════════╝"
 echo -e "${CR}👑 Developer : $OWNER_NAME"
 echo -e "${CR}💬 Discord   : $DISCORD_LINK"
