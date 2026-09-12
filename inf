@@ -1,8 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# ANSI Escape Code สำหรับล้างแถว
+# ANSI Escape Code สำหรับล้างแถวและบังคับชิดซ้ายสุด
 CR="\r\033[K"
 
+# ข้อมูลผู้พัฒนาและลิงก์ Discord
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
@@ -40,26 +41,6 @@ check_password() {
     done
     echo -e "${CR}🚫 ล็อกระบบชั่วคราว"
     exit 1
-}
-
-# --- ฟังก์ชันปรับ DPI + รีเซ็ต Input Stream ---
-set_smallest_width_750() {
-    echo -e "${CR}⚙️ กำลังปรับ Smallest Width เป็น 750 dp..."
-    
-    local DISPLAY_WIDTH=$(su -c "wm size" 2>&1 | grep -oE '[0-9]+x[0-9]+' | head -n 1 | cut -d'x' -f1)
-    if [ -n "$DISPLAY_WIDTH" ]; then
-        local TARGET_DPI=$(( DISPLAY_WIDTH * 160 / 750 ))
-        su -c "wm density $TARGET_DPI" > /dev/null 2>&1
-    else
-        su -c "wm density 160" > /dev/null 2>&1
-    fi
-    
-    # 📌 คำสั่งแก้บัคคีย์บอร์ดค้าง: ล้างและตั้งค่า Terminal Input Stream ใหม่
-    stty sane 2>/dev/null
-    exec < /dev/tty
-    
-    echo -e "${CR}✨ ปรับขนาดหน้าจอเรียบร้อย!"
-    sleep 1
 }
 
 install_apk() {
@@ -170,8 +151,7 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password             # 1. ให้ใส่รหัสผ่านก่อน
-set_smallest_width_750     # 2. ปรับ DPI แล้วบังคับรีเซ็ต Input Stream
+check_password             # ตรวจสอบรหัสผ่าน
 
 clear
 echo -e "╔════════════════════════════════════════╗"
@@ -183,7 +163,6 @@ echo -e "${CR}------------------------------------------"
 echo -e "${CR}[1] Delta Clones (${#DELTA_APPS[@]} Apps)"
 echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
 echo -e "${CR}------------------------------------------"
-
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
 echo ""
