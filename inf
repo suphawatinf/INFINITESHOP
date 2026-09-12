@@ -20,7 +20,6 @@ check_password() {
         read -s USER_PASS
         echo ""
         
-        # ตัดช่องว่างหัว-ท้าย และอักขระพิเศษออก ป้องกันรหัสผิดพลาด
         USER_PASS=$(echo "$USER_PASS" | tr -d '[:space:]' | tr -d '\r')
         
         local IS_CORRECT=0
@@ -149,7 +148,6 @@ ARCEUS_APPS=(
   "https://github.com/suphawatinf/INFINITESHOP/releases/download/V1.0/ArceusX.lite.by.Suphawat.8_2.737.1584.apk"
 )
 
-# --- ลำดับการทำงาน ---
 check_password
 
 clear
@@ -159,9 +157,9 @@ echo -e "╚══════════════════════�
 echo -e "${CR}👑 Developer : $OWNER_NAME"
 echo -e "${CR}💬 Discord   : $DISCORD_LINK"
 echo -e "${CR}------------------------------------------"
-# แก้ไขชื่อแสดงผลตรงนี้ให้เป็นชื่อที่คุณต้องการครับ
-echo -e "${CR}[1] Delta (${#DELTA_APPS[@]} Apps)"
-echo -e "${CR}[2] ArceusX lite (${#ARCEUS_APPS[@]} Apps)"
+# ใช้ printf จัดช่องว่างให้คำว่า Apps ตรงกันเป๊ะ
+printf "${CR}[1] %-15s (%2d Apps)\n" "Delta" "${#DELTA_APPS[@]}"
+printf "${CR}[2] %-15s (%2d Apps)\n" "ArceusX lite" "${#ARCEUS_APPS[@]}"
 echo -e "${CR}------------------------------------------"
 echo -ne "${CR}🎯 เลือกหมวดหมู่ (1-2): "
 read MAIN_CHOICE
