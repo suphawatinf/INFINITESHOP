@@ -7,13 +7,24 @@ CR="\r\033[K"
 OWNER_NAME="Suphawat"
 DISCORD_LINK="https://discord.gg/VCPAaUy46C"
 
-# --- ฟังก์ชันตั้งค่าหน้าจอ (ปรับ DPI เป็น 750 อัตโนมัติ) ---
+# --- ฟังก์ชันตั้งค่าหน้าจอ (ปรับ DPI เป็น 750 อัตโนมัติทันที) ---
 set_automatic_dpi() {
-    echo -e "${CR}⚙️ กำลังปรับค่า DPI หน้าจอเป็น 750 อัตโนมัติ..."
+    echo -e "${CR}⚙️ กำลังปรับค่า DPI หน้าจอเป็น 750..."
+    
+    # สั่งปรับ DPI บังคับระบุหน้าจอหลัก (-d 0) และส่งสัญญาณรีเฟรชระบบ
+    su -c "wm density 750 -d 0" > /dev/null 2>&1
     su -c "wm density 750" > /dev/null 2>&1
-    sleep 1
-    echo -e "${CR}✨ ตั้งค่า DPI สำเร็จเรียบร้อย!"
-    sleep 1
+    
+    # ดึงค่า DPI ปัจจุบันมาตรวจสอบ
+    local CURRENT_DPI
+    CURRENT_DPI=$(su -c "wm density" 2>&1 | grep -oE '[0-9]+' | tail -n 1)
+
+    if [ -n "$CURRENT_DPI" ]; then
+        echo -e "${CR}✨ ตั้งค่า DPI สำเร็จ! (ค่าปัจจุบัน: ${CURRENT_DPI})"
+    else
+        echo -e "${CR}✨ ส่งคำสั่งปรับ DPI เรียบร้อยแล้ว"
+    fi
+    sleep 1.5
 }
 
 VALID_PASSWORDS=("1234" "5678" "prem99" "infinite2026")
@@ -160,8 +171,8 @@ ARCEUS_APPS=(
 )
 
 # --- ลำดับการทำงาน ---
-check_password      # 1. ตรวจสอบรหัสผ่านก่อน
-set_automatic_dpi   # 2. ปรับ DPI เป็น 750 อัตโนมัติ
+check_password      # 1. ตรวจสอบรหัสผ่าน
+set_automatic_dpi   # 2. ปรับ DPI เป็น 750 ทันทีที่รหัสผ่านถูกต้อง
 
 clear
 echo -e "╔════════════════════════════════════════╗"
